@@ -32,7 +32,7 @@
       "version": ">=1.90201.0,<1.90302.0"
     },
     "toolchain-rp2040-earlephilhower": {
-      "type": "toolchain", 
+      "type": "toolchain",
       "optional": true,
       "owner": "earlephilhower",
       "version": "https://github.com/maxgerhardt/toolchain-dummy/archive/refs/heads/main.zip"
@@ -47,7 +47,7 @@
       "type": "framework",
       "optional": true,
       "owner": "earlephilhower",
-      "version": "https://github.com/earlephilhower/arduino-pico.git#c3a3526aada769c800a30e985553f1523be8c413"
+      "version": "https://github.com/earlephilhower/arduino-pico.git#32e74d024e5e3ee5e7ec9593f5a4101641c61897"
     },
     "tool-rp2040tools": {
       "type": "uploader",
