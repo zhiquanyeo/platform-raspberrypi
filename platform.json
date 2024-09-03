@@ -23,6 +23,10 @@
     "arduino": {
       "package": "framework-arduino-mbed",
       "script": "builder/frameworks/arduino/arduino.py"
+    },
+    "picosdk": {
+      "package": "framework-picosdk",
+      "script": "builder/frameworks/picosdk.py"
     }
   },
   "packages": {
@@ -47,12 +51,19 @@
       "type": "framework",
       "optional": true,
       "owner": "earlephilhower",
-      "version": "https://github.com/earlephilhower/arduino-pico.git#96a2e925cf86b1c3a7343bd1efdbaf48844962e3"
+      "version": "https://github.com/earlephilhower/arduino-pico.git#6a5f98c7effc4153b6588cf164062968e7df834a"
     },
-    "tool-rp2040tools": {
-      "type": "uploader",
+    "framework-picosdk": {
+      "type": "framework",
+      "optional": true,
       "owner": "platformio",
-      "version": "~1.0.2"
+      "version": "https://github.com/maxgerhardt/pico-sdk.git"
+    },
+    "tool-picotool-rp2040-earlephilhower": {
+      "type": "uploader",
+      "optional": false,
+      "owner": "platformio",
+      "version": "https://github.com/maxgerhardt/picotool-dummy/archive/refs/heads/main.zip"
     },
     "tool-openocd-rp2040-earlephilhower": {
       "type": "uploader",

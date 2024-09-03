@@ -120,9 +120,13 @@ def generate_uf2(target, source, env):
     env.Execute(
         " ".join(
             [
-                "elf2uf2",
+                "picotool",
+                "uf2",
+                "convert",
+                "-t",
+                "elf",
                 '"%s"' % elf_file,
-                '"%s"' % elf_file.replace(".elf", ".uf2"),
+                '"%s"' % elf_file.replace(".elf", ".uf2")
             ]
         )
     )
@@ -297,7 +301,7 @@ def RebootPico(target, source, env):
     time.sleep(0.5)
     env.Execute(
         '"%s" reboot' %
-            join(platform.get_package_dir("tool-rp2040tools") or "", "picotool")
+            join(platform.get_package_dir("tool-picotool-rp2040-earlephilhower") or "", "picotool")
     )
 #
 # Target: Upload by default .bin file
@@ -432,14 +436,14 @@ elif upload_protocol == "espota":
     upload_actions = [env.VerboseAction("$UPLOADCMD", "Uploading $SOURCE")]
 elif upload_protocol == "picotool":
     env.Replace(
-        UPLOADER=join(platform.get_package_dir("tool-rp2040tools") or "", "rp2040load"),
-        UPLOADERFLAGS=["-v", "-D"],
-        UPLOADCMD='"$UPLOADER" $UPLOADERFLAGS $SOURCES'
+        UPLOADER=join(platform.get_package_dir("tool-picotool-rp2040-earlephilhower") or "", "picotool"),
+        UPLOADERFLAGS=["-v", "-x"],
+        UPLOADCMD='"$UPLOADER" load $UPLOADERFLAGS $SOURCES'
     )
 
     if "uploadfs" in COMMAND_LINE_TARGETS:
         env.Replace(
-            UPLOADER=join(platform.get_package_dir("tool-rp2040tools") or "", "picotool"),
+            UPLOADER=join(platform.get_package_dir("tool-picotool-rp2040-earlephilhower") or "", "picotool"),
             UPLOADERFLAGS=[
                 "load",
                 "--verify"
