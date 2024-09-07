@@ -19,6 +19,7 @@ from os.path import isdir, join, isfile, exists
 import re
 import time
 from shutil import copyfile
+import subprocess
 
 from platformio.public import list_serial_ports
 
@@ -100,6 +101,12 @@ def __fetch_fs_size(target, source, env):
     fetch_fs_size(env)
     return (target, source)
 
+def get_num_rpxxxx_devs(picotool_path: str):
+    # regardless of whether an RP2040 or RP2350 device is deteced, it will print "type: [..] RP2350" or "type: [..] RP2040".
+    # else it will not print "type:".
+    output = subprocess.run('"' + picotool_path + '" info -d', check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True).stdout
+    return output.count(b"type:")
+
 def BeforeUpload(target, source, env):  # pylint: disable=W0613,W0621
     upload_options = {}
     if "BOARD" in env:
@@ -109,11 +116,19 @@ def BeforeUpload(target, source, env):  # pylint: disable=W0613,W0621
     before_ports = list_serial_ports()
 
     if upload_options.get("use_1200bps_touch", False):
+        picotool_path = join(env.PioPlatform().get_package_dir("tool-picotool-rp2040-earlephilhower") or "", "picotool")
+        num_before = get_num_rpxxxx_devs(picotool_path)
         env.TouchSerialPort("$UPLOAD_PORT", 1200)
-        # "rp2040load" did not need this, but with "picotool" we do.
-        # Maybe we should wait until the BOOTSEL device VID/PID is visible instead of this generic delay?
-        print("Delaying a tiny bit...")
-        time.sleep(0.5)
+        # delay a tiny bit in any case
+        time.sleep(0.2)
+        max_wait_s = 3.0
+        while max_wait_s > 0:
+            if get_num_rpxxxx_devs(picotool_path) > num_before:
+                print("Device rebooted into BOOTSEL mode successfully.")
+                break
+            time.sleep(0.25)
+            max_wait_s -= 0.25
+            print("No new RPxxxx device found yet, waiting..")
 
     if upload_options.get("wait_for_upload_port", False):
         env.Replace(UPLOAD_PORT=env.WaitForNewSerialPort(before_ports))
