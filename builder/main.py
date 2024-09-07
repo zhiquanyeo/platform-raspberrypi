@@ -110,6 +110,10 @@ def BeforeUpload(target, source, env):  # pylint: disable=W0613,W0621
 
     if upload_options.get("use_1200bps_touch", False):
         env.TouchSerialPort("$UPLOAD_PORT", 1200)
+        # "rp2040load" did not need this, but with "picotool" we do.
+        # Maybe we should wait until the BOOTSEL device VID/PID is visible instead of this generic delay?
+        print("Delaying a tiny bit...")
+        time.sleep(0.5)
 
     if upload_options.get("wait_for_upload_port", False):
         env.Replace(UPLOAD_PORT=env.WaitForNewSerialPort(before_ports))
@@ -456,10 +460,7 @@ elif upload_protocol == "picotool":
         env.VerboseAction("$UPLOADCMD", "Uploading $SOURCE"),
     ]
 
-    # picotool seems to need just a tiny bit of delay, but rp2040 load not..
     if "uploadfs" in COMMAND_LINE_TARGETS:
-        upload_actions.insert(1, env.VerboseAction(
-            lambda source, target, env: time.sleep(0.5), "Delaying a tiny bit..."))
         # reboot after filesystem upload
         upload_actions.append(env.VerboseAction(RebootPico, "Rebooting device..."))
 
