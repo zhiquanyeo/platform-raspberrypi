@@ -173,6 +173,8 @@ env.Append(
         
         join(FRAMEWORK_DIR, "src", "rp2_common", "pico_stdio", "include"),
         join(FRAMEWORK_DIR, "src", "rp2_common", "pico_stdlib", "include"),
+
+        join(FRAMEWORK_DIR, "src", "rp2040", "boot_stage2", "asminclude"),
     ],
     #CXXFLAGS=sorted(list(cxxflags - ccflags)),
     LIBPATH=[
@@ -182,7 +184,9 @@ env.Append(
     #    os.path.join(FRAMEWORK_DIR, "variants", board.get("build.variant"), "libs")
     ],
 
-    #LINKFLAGS=load_flags("ldflags"),
+    LINKFLAGS=[
+        "$BUILD_DIR/boot2.S"
+    ],
     #LIBSOURCE_DIRS=[os.path.join(FRAMEWORK_DIR, "libraries")],
     #LIBS=["mbed"]
 )
@@ -263,20 +267,96 @@ env.Replace(LDSCRIPT_PATH=join(FRAMEWORK_DIR, "src", "rp2_common", "pico_crt0", 
 
 # build base files
 # system_RP2040.c
-env.BuildSources(
-    join("$BUILD_DIR", "PicoSDK"),
-    join(FRAMEWORK_DIR, "src", "rp2_common", "cmsis", "stub", "CMSIS", "Device", "RP2040", "Source")
+# env.BuildSources(
+#     join("$BUILD_DIR", "PicoSDK"),
+#     join(FRAMEWORK_DIR, "src", "rp2_common", "cmsis", "stub", "CMSIS", "Device", "RP2040", "Source")
+# )
+
+gen_boot2_cmd = env.Command(
+    join("$BUILD_DIR", "boot2.S"),  # $TARGET
+    join(FRAMEWORK_DIR, "src", "rp2040", "boot_stage2", "compile_time_choice.S"),  # $SOURCE
+    env.VerboseAction(" ".join([
+        "$CC",
+        "$ASPPFLAGS",
+        #"$ASFLAGS",
+        #"$CCFLAGS",
+    ] 
+    + ["-D%s=%s" % (flag[0], str(flag[1])) for flag in env["CPPDEFINES"]] 
+    + [
+        "-I\"%s\"" % join(FRAMEWORK_DIR, "src", "rp2040", "boot_stage2", "asminclude"),
+        "-I\"%s\"" % join(FRAMEWORK_DIR, "src", "rp2040", "boot_stage2", "include"),
+        "-I\"%s\"" % join(FRAMEWORK_DIR, "src", "common", "pico_base_headers", "include"),
+        "-I\"%s\"" % join(FRAMEWORK_DIR, "generated"),
+        "-I", "$PROJECT_BUILD_DIR/$PIOENV/generated",
+        "-I\"%s\"" % join(rp2_variant_dir, "pico_platform", "include"),
+        "-I\"%s\"" % join(FRAMEWORK_DIR, "src", "rp2_common", "pico_platform_compiler", "include"),
+        "-I\"%s\"" % join(rp2_variant_dir, "hardware_regs", "include"),
+        "-I\"%s\"" % join(FRAMEWORK_DIR, "src", "rp2_common", "pico_platform_sections", "include"),
+        "-I\"%s\"" % join(FRAMEWORK_DIR, "src", "rp2_common", "pico_platform_panic", "include"),
+        "-o",
+        join("$BUILD_DIR", "boot2.elf"),
+        "-nostdlib",
+        "--specs=nosys.specs",
+        "-nostartfiles",
+        "-Wl,-T,\"%s\"" % join(FRAMEWORK_DIR, "src", "rp2040", "boot_stage2", "boot_stage2.ld"),
+        "$SOURCE"
+    ] + [ " && "] + [
+        "$OBJCOPY",
+        "-Obinary",
+        join("$BUILD_DIR", "boot2.elf"),
+        join("$BUILD_DIR", "boot2.bin")
+    ] + [ " && "] + [
+        "$PYTHONEXE",
+        join(FRAMEWORK_DIR, "src", "rp2040", "boot_stage2", "pad_checksum"),
+        "-s 0xffffffff",
+        join("$BUILD_DIR", "boot2.bin"),
+        join("$BUILD_DIR", "boot2.S"),
+    ]), "Generating boot2 $BUILD_DIR/boot2.S")
 )
+env.Depends("$BUILD_DIR/${PROGNAME}.elf", gen_boot2_cmd)
 
 # default compontents
 default_common_rp2_components = [
-    "hardware_adc"
-    "hardware_boot_lock",
-    "hardware_clocks",
+    ("pico_runtime_init", "+<*>"),
+    ("hardware_adc", "+<*>"),
+    ("hardware_boot_lock", "+<*>"),
+    ("hardware_clocks", "+<*>"),
+    ("hardware_xosc", "+<*>"),
+    ("hardware_pll", "+<*>"),
+    ("hardware_ticks", "+<*>"),
+    ("pico_clib_interface", "-<*> +<newlib_interface.c>"),
+    ("hardware_gpio", "+<*>"),
+    ("hardware_timer", "+<*>"),
+    ("hardware_irq", "+<*>"),
+    ("hardware_sync", "+<*>"),
+    ("hardware_sync_spin_lock", "+<*>"),
+    ("pico_platform_panic", "+<*>"),
+    ("pico_runtime", "+<*>"),
 ]
 
-for component in default_common_rp2_components:
+for component, src_filter in default_common_rp2_components:
     env.BuildSources(
         join("$BUILD_DIR", "PicoSDK%s" % component),
-        join(FRAMEWORK_DIR, "src", "rp2_common", component)
+        join(FRAMEWORK_DIR, "src", "rp2_common", component),
+        src_filter
+    )
+
+# Will be crt0_riscv.S for RISC-V builds..
+env.BuildSources(
+    join("$BUILD_DIR", "PicoSDKCRT0"),
+    join(FRAMEWORK_DIR, "src", "rp2_common", "pico_crt0"),
+    "-<*> +<crt0.S>"
+)
+
+default_common_components = [
+    ("pico_time", "+<*>"),
+    ("pico_util", "+<*>"),
+    ("pico_sync", "+<*>"),
+    ("hardware_claim", "+<*>"),
+]
+for component, src_filter in default_common_components:
+    env.BuildSources(
+        join("$BUILD_DIR", "PicoSDKCommon%s" % component),
+        join(FRAMEWORK_DIR, "src", "common", component),
+        src_filter
     )

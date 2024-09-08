@@ -100,6 +100,7 @@
                 "C:/Users/Max/.platformio/packages/framework-picosdk/src/rp2_common/pico_runtime/include",
                 "C:/Users/Max/.platformio/packages/framework-picosdk/src/rp2_common/pico_stdio/include",
                 "C:/Users/Max/.platformio/packages/framework-picosdk/src/rp2_common/pico_stdlib/include",
+                "C:/Users/Max/.platformio/packages/framework-picosdk/src/rp2040/boot_stage2/asminclude",
                 ""
             ],
             "browse": {
@@ -197,6 +198,7 @@
                     "C:/Users/Max/.platformio/packages/framework-picosdk/src/rp2_common/pico_runtime/include",
                     "C:/Users/Max/.platformio/packages/framework-picosdk/src/rp2_common/pico_stdio/include",
                     "C:/Users/Max/.platformio/packages/framework-picosdk/src/rp2_common/pico_stdlib/include",
+                    "C:/Users/Max/.platformio/packages/framework-picosdk/src/rp2040/boot_stage2/asminclude",
                     ""
                 ]
             },
