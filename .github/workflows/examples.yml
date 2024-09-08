@@ -14,6 +14,7 @@ jobs:
           - "examples/arduino-ota"
           - "examples/arduino-signed-ota"
           - "examples/arduino-external-libs"
+          - "examples/picosdk-blink"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
