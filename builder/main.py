@@ -112,6 +112,15 @@ def BeforeUpload(target, source, env):  # pylint: disable=W0613,W0621
     if "BOARD" in env:
         upload_options = env.BoardConfig().get("upload", {})
 
+    # fastpath if device is already in BOOTSEL mode. We don't need to do anything.
+    upload_protocol = env.subst("$UPLOAD_PROTOCOL") or "picotool"
+    if upload_protocol == "picotool" and upload_options.get("use_1200bps_touch", False) is True:
+        picotool_path = join(env.PioPlatform().get_package_dir("tool-picotool-rp2040-earlephilhower") or "", "picotool")
+        num_now = get_num_rpxxxx_devs(picotool_path) 
+        if get_num_rpxxxx_devs(picotool_path) != 0:
+            print("Already found " + str(num_now) + " device(s) RPxxxx device in BOOTSEL mode, not trying to do 1200bps reset.")
+            return
+
     env.AutodetectUploadPort()
     before_ports = list_serial_ports()
 
@@ -129,6 +138,8 @@ def BeforeUpload(target, source, env):  # pylint: disable=W0613,W0621
             time.sleep(0.25)
             max_wait_s -= 0.25
             print("No new RPxxxx device found yet, waiting..")
+        if get_num_rpxxxx_devs(picotool_path) == 0:
+            print("Warning: Picotool did not detect any RPxxxx devices in BOOTSEL mode. Upload might fail.")
 
     if upload_options.get("wait_for_upload_port", False):
         env.Replace(UPLOAD_PORT=env.WaitForNewSerialPort(before_ports))
