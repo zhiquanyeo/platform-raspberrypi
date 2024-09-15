@@ -4,13 +4,13 @@
             "earlephilhower": {
                 "boot2_source": "boot2_generic_03h_4_padded_checksum.S",
                 "usb_vid": "0x2E8A",
-                "usb_pid": "0xF00A"
+                "usb_pid": "0x100A"
             }
         },
         "core": "earlephilhower",
-        "cpu": "cortex-m0plus",
-        "extra_flags": "-DARDUINO_DEGZ_SUIBO_RP2040 -DARDUINO_ARCH_RP2040 -DUSBD_MAX_POWER_MA=250 ",
-        "f_cpu": "133000000L",
+        "cpu": "cortex-m33",
+        "extra_flags": "-DARDUINO_PIMORONI_PICO_PLUS_2 -DARDUINO_ARCH_RP2040 -DUSBD_MAX_POWER_MA=500 ",
+        "f_cpu": "150000000L",
         "hwids": [
             [
                 "0x2E8A",
@@ -18,23 +18,23 @@
             ],
             [
                 "0x2E8A",
-                "0xF00A"
+                "0x100A"
             ]
         ],
-        "mcu": "rp2040",
-        "variant": "degz_suibo"
+        "mcu": "rp2350",
+        "variant": "pimoroni_pico_plus_2"
     },
     "debug": {
-        "jlink_device": "RP2040_M0_0",
-        "openocd_target": "rp2040.cfg",
-        "svd_path": "rp2040.svd"
+        "jlink_device": "RP2350_0",
+        "openocd_target": "rp2350.cfg",
+        "svd_path": "rp2350.svd"
     },
     "frameworks": [
         "arduino"
     ],
-    "name": "Suibo RP2040",
+    "name": "PicoPlus2",
     "upload": {
-        "maximum_ram_size": 262144,
+        "maximum_ram_size": 524288,
         "maximum_size": 16777216,
         "require_upload_port": true,
         "native_usb": true,
@@ -48,8 +48,9 @@
             "raspberrypi-swd",
             "picotool",
             "picoprobe"
-        ]
+        ],
+        "psram_length": 8388608
     },
-    "url": "https://www.degzrobotics.com/suibo",
-    "vendor": "Degz Robotics"
+    "url": "https://www.raspberrypi.org/products/raspberry-pi-pico/",
+    "vendor": "Pimoroni"
 }
