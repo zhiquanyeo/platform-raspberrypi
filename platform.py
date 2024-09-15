@@ -194,7 +194,7 @@ class RaspberrypiPlatform(PlatformBase):
                         "package": "tool-openocd-rp2040-earlephilhower",
                         "arguments": [
                             "-s", "$PACKAGE_DIR/share/openocd/scripts",
-                            "-f", "interface/%s.cfg" % link,
+                            "-f", "interface/%s.cfg" % "cmsis-dap" if link == "picoprobe" else link,
                             "-f", "target/%s" % openocd_target
                         ]
                     }
