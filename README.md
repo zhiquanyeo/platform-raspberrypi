@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/platformio/platform-raspberrypi/workflows/Examples/badge.svg)](https://github.com/platformio/platform-raspberrypi/actions)
 
 > [!NOTE]  
-> This fork was created due to the lack of ongoing development for Raspberry Pi RP2040 and RP2350 Arduino Core for PlatformIO.
+> This fork was created due to the lack of ongoing upstream development of the Raspberry Pi RP2040 and RP2350 Arduino Core for PlatformIO.
 >
 > For additional information, please refer to these GitHub links:
 > 
@@ -11,7 +11,7 @@
 > - https://github.com/platformio/platform-raspberrypi/pull/70
 > - https://github.com/platformio/platform-raspberrypi/issues/67
 >
-> The discussions are self-explanatory, allowing you to draw your own conclusions.
+> Those discussions are more or less self-explanatory, allowing you to draw your own conclusions, but feel free to post comments in those.
 
 
 RP2040 is a low-cost, high-performance microcontroller device with a large on-chip memory, symmetric dual-core processor complex, deterministic bus fabric, and rich peripheral set augmented with a unique Programmable I/O (PIO) subsystem, it provides professional users with unrivalled power and flexibility. RP2040 was initially released as part of the Raspberry Pi Pico board.
