@@ -165,18 +165,23 @@ def generate_uf2(target, source, env):
 env = DefaultEnvironment()
 platform = env.PioPlatform()
 board = env.BoardConfig()
+chip = board.get("build.mcu")
+
+toolchain_tripple = "arm-none-eabi"
+if chip == "rp2350-riscv":
+    toolchain_tripple = "riscv32-unknown-elf"
 
 env.Replace(
     __fetch_fs_size=fetch_fs_size,
 
-    AR="arm-none-eabi-ar",
-    AS="arm-none-eabi-as",
-    CC="arm-none-eabi-gcc",
-    CXX="arm-none-eabi-g++",
-    GDB="arm-none-eabi-gdb",
-    OBJCOPY="arm-none-eabi-objcopy",
-    RANLIB="arm-none-eabi-ranlib",
-    SIZETOOL="arm-none-eabi-size",
+    AR="%s-ar" % toolchain_tripple,
+    AS="%s-as" % toolchain_tripple,
+    CC="%s-gcc" % toolchain_tripple,
+    CXX="%s-g++" % toolchain_tripple,
+    GDB="%s-gdb" % toolchain_tripple,
+    OBJCOPY="%s-objcopy" % toolchain_tripple,
+    RANLIB="%s-ranlib" % toolchain_tripple,
+    SIZETOOL="%s-size" % toolchain_tripple,
 
     ARFLAGS=["rc"],
 

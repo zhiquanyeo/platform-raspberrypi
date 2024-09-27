@@ -93,6 +93,7 @@ class RaspberrypiPlatform(PlatformBase):
         # select the right one based on the build.core, disable other one.
         board = variables.get("board")
         board_config = self.board_config(board)
+        chip = variables.get("board_build.mcu", board_config.get("build.mcu"))
         build_core = variables.get(
             "board_build.core", board_config.get("build.core", "arduino"))
         # Use the same string identifier as seen in "pio system info" and registry
@@ -117,7 +118,12 @@ class RaspberrypiPlatform(PlatformBase):
                 self.packages.pop("toolchain-gccarmnoneeabi", None)
                 self.packages["toolchain-rp2040-earlephilhower"]["optional"] = False
                 # Configure toolchain download link dynamically
-                self.packages["toolchain-rp2040-earlephilhower"]["version"] = RaspberrypiPlatform.earle_toolchain_arm[sys_type]
+                # RP2350 (RISC-V)
+                if chip == "rp2350-riscv":
+                    self.packages["toolchain-rp2040-earlephilhower"]["version"] = RaspberrypiPlatform.earle_toolchain_riscv[sys_type]
+                # RP2040, RP2350 (ARM)
+                else:
+                    self.packages["toolchain-rp2040-earlephilhower"]["version"] = RaspberrypiPlatform.earle_toolchain_arm[sys_type]
             else:
                 sys.stderr.write(
                     "Error! Unknown build.core value '%s'. Don't know which Arduino core package to use." % build_core)
