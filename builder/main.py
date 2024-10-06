@@ -68,6 +68,9 @@ def fetch_fs_size(env):
     print("Flash size: %.2fMB" % (flash_size / 1024.0 / 1024.0))
     print("Sketch size: %.2fMB" % (maximum_sketch_size / 1024.0 / 1024.0))
     print("Filesystem size: %.2fMB" % (filesystem_size_int / 1024.0 / 1024.0))
+    # Just informational
+    psram_len = convert_size_expression_to_int(board.get("upload.psram_length", "0"))
+    print("PSRAM size: %.2fMB" % (psram_len / 1024.0 / 1024.0))
 
     eeprom_start = 0x10000000 + flash_size - eeprom_size
     fs_start = 0x10000000 + flash_size - eeprom_size - filesystem_size_int
