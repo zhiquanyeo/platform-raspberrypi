@@ -241,7 +241,7 @@ old_check = env.CheckUploadSize
 def new_check_size(target, source, env):
     old_check(target, source, env)
     board = env.BoardConfig()
-    psram_len = convert_size_expression_to_int(board.get("upload.psram_length", "0"))
+    psram_len = convert_size_expression_to_int(str(board.get("upload.psram_length", "0")))
     if psram_len == 0:
         return
     output = _get_size_output(source)
