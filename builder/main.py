@@ -14,12 +14,13 @@
 
 import sys
 from platform import system
-from os import makedirs, remove
+from os import makedirs, remove, environ
 from os.path import isdir, join, isfile, exists
 import re
 import time
 from shutil import copyfile
 import subprocess
+from platformio.proc import exec_command
 
 from platformio.public import list_serial_ports
 
@@ -198,6 +199,55 @@ env.Replace(
 
     PROGSUFFIX=".elf"
 )
+
+# Print fancier PSRAM size output (statically known allocations)
+def _format_available_bytes(value, total):
+    percent_raw = float(value) / float(total)
+    blocks_per_progress = 10
+    used_blocks = min(
+        int(round(blocks_per_progress * percent_raw)), blocks_per_progress
+    )
+    return "[{:{}}] {: 6.1%} (used {:d} bytes from {:d} bytes)".format(
+        "=" * used_blocks, blocks_per_progress, percent_raw, value, total
+    )
+def _get_size_output(source):
+    cmd = env.get("SIZECHECKCMD")
+    if not cmd:
+        return None
+    if not isinstance(cmd, list):
+        cmd = cmd.split()
+    cmd = [arg.replace("$SOURCES", str(source[0])) for arg in cmd if arg]
+    sysenv = environ.copy()
+    sysenv["PATH"] = str(env["ENV"]["PATH"])
+    result = exec_command(env.subst(cmd), env=sysenv)
+    if result["returncode"] != 0:
+        return None
+    return result["out"].strip()
+def _calculate_size(output, pattern):
+    if not output or not pattern:
+        return -1
+    size = 0
+    regexp = re.compile(pattern)
+    for line in output.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        match = regexp.search(line)
+        if not match:
+            continue
+        size += sum(int(value) for value in match.groups())
+    return size
+old_check = env.CheckUploadSize
+def new_check_size(target, source, env):
+    old_check(target, source, env)
+    board = env.BoardConfig()
+    psram_len = convert_size_expression_to_int(board.get("upload.psram_length", "0"))
+    if psram_len == 0:
+        return
+    output = _get_size_output(source)
+    used_psram = _calculate_size(output, r"^(?:\.psram)\s+(\d+).*")
+    print("PSRAM: " + _format_available_bytes(used_psram, psram_len))
+env.CheckUploadSize = new_check_size
 
 # Allow user to override via pre:script
 if env.get("PROGNAME", "program") == "program":
