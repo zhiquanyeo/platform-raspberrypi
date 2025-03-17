@@ -51,7 +51,7 @@
       "type": "framework",
       "optional": true,
       "owner": "earlephilhower",
-      "version": "https://github.com/zhiquanyeo/arduino-pico.git#1524d6c414ffdf32043ced50a435620dd485d181"
+      "version": "https://github.com/zhiquanyeo/arduino-pico.git#fc4b23ee108b01a58c39f5d3fe57b791ef577531"
     },
     "framework-picosdk": {
       "type": "framework",
